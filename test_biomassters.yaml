@@ -1,0 +1,112 @@
+seed_everything: 0
+trainer:
+  accelerator: auto
+  strategy: auto
+  devices: auto
+  num_nodes: 1
+  precision: 16-mixed
+  callbacks:
+    - class_path: RichProgressBar
+    - class_path: LearningRateMonitor
+      init_args:
+        logging_interval: epoch
+  max_epochs: 125
+  check_val_every_n_epoch: 10
+  log_every_n_steps: 50
+  enable_checkpointing: True
+  default_root_dir: /dccstor/geofm-finetuning/pedrohc/biomassters
+
+data:
+  class_path: BioMasstersNonGeoDataModule
+  init_args:
+    batch_size: 8
+    num_workers: 12
+    bands:
+      - BLUE
+      - GREEN
+      - RED
+      - NIR_NARROW
+      - SWIR_1
+      - SWIR_2
+    train_transform:
+      - class_path: FlattenTemporalIntoChannels
+      - class_path: albumentations.RandomCrop
+        init_args:
+          height: 224
+          width: 224
+      - class_path: albumentations.Flip
+      - class_path: ToTensorV2
+      - class_path: UnflattenTemporalFromChannels
+        init_args:
+          n_timesteps: 4
+    val_transform:
+      - class_path: FlattenTemporalIntoChannels
+      - class_path: albumentations.RandomCrop
+        init_args:
+          height: 224
+          width: 224
+      - class_path: albumentations.Flip
+      - class_path: ToTensorV2
+      - class_path: UnflattenTemporalFromChannels
+        init_args:
+          n_timesteps: 4
+    data_root: "/dccstor/geofm-finetuning/datasets/BioMassters/BioMassters"
+    sensors:
+      - "S2"
+    as_time_series: True
+    use_four_frames: True
+
+model:
+  class_path: terratorch.tasks.PixelwiseRegressionTask
+  init_args:
+    model_args:
+      backbone_pretrained: True
+      backbone: prithvi_vit_100
+      decoder: UperNetDecoder
+      backbone_pretrained: True
+      rescale: True
+      backbone_bands:
+        - BLUE
+        - GREEN
+        - RED
+        - NIR_NARROW
+        - SWIR_1
+        - SWIR_2
+      head_dropout: 0.1
+      decoder_channels: 512
+      backbone_num_frames: 4
+      necks:
+        - name: SelectIndices
+          indices:
+            # indices for vit_100
+            - 2
+            - 5
+            - 8
+            - 11
+            # indices for vit_300
+            # - 5
+            # - 11
+            # - 17
+            # - 23
+            # indices for vit_6
+            # - 7
+            # - 15
+            # - 23
+            # - 31
+        - name: ReshapeTokensToImage
+          effective_time_dim: 4
+    freeze_backbone: false
+    freeze_decoder: false
+    model_factory: EncoderDecoderFactory
+
+optimizer:
+  class_path: torch.optim.AdamW
+  init_args:
+    lr: 0.0001
+    weight_decay: 0.05
+
+lr_scheduler:
+  class_path: StepLR
+  init_args:
+    step_size: 10
+    gamma: 0.9

@@ -1,0 +1,112 @@
+seed_everything: 0
+trainer:
+  accelerator: auto
+  strategy: auto
+  devices: auto
+  num_nodes: 1
+  precision: 16-mixed
+  logger:
+    class_path: TensorBoardLogger
+    init_args:
+      save_dir: <your_dir>
+      name: vitB_adamw.lr1.0e-5_wd02_steplr.3.9_earlystop10
+  callbacks:
+    - class_path: RichProgressBar
+    - class_path: LearningRateMonitor
+      init_args:
+        logging_interval: epoch
+    - class_path: lightning.pytorch.callbacks.EarlyStopping
+      init_args:
+        patience: 10
+        monitor: val/loss
+  max_epochs: 50
+  check_val_every_n_epoch: 2
+  log_every_n_steps: 2
+  enable_checkpointing: true
+  default_root_dir: <your_dir>
+
+data:
+  class_path: ForestNetNonGeoDataModule
+  init_args:
+    use_metadata: True
+    batch_size: 8
+    num_workers: 12
+    bands:
+      - BLUE
+      - GREEN
+      - RED
+      - NIR
+      - SWIR_1
+      - SWIR_2
+    train_transform:
+      - class_path: FlattenTemporalIntoChannels
+      - class_path: albumentations.Resize
+        init_args:
+          height: 224
+          width: 224
+      - class_path: albumentations.Flip
+      - class_path: ToTensorV2
+      - class_path: UnflattenTemporalFromChannels
+        init_args:
+          n_timesteps: 3
+    val_transform:
+      - class_path: FlattenTemporalIntoChannels
+      - class_path: albumentations.Resize
+        init_args:
+          height: 224
+          width: 224
+      - class_path: ToTensorV2
+      - class_path: UnflattenTemporalFromChannels
+        init_args:
+          n_timesteps: 3
+    test_transform:
+      - class_path: FlattenTemporalIntoChannels
+      - class_path: albumentations.Resize
+        init_args:
+          height: 224
+          width: 224
+      - class_path: ToTensorV2
+      - class_path: UnflattenTemporalFromChannels
+        init_args:
+          n_timesteps: 3
+    data_root: "/dccstor/geofm-finetuning/datasets/ForestNet"
+
+model:
+  class_path: terratorch.tasks.ClassificationTask
+  init_args:
+    model_args:
+      backbone_pretrained: True
+      backbone: prithvi_vit_100 # can be vit_100, vit_300 or vit_600
+      decoder: IdentityDecoder
+      num_classes: 4
+      backbone_num_frames: 3
+      backbone_bands:
+        - BLUE
+        - GREEN
+        - RED
+        - NIR
+        - SWIR_1
+        - SWIR_2
+      head_dropout: 0.1
+    loss: ce
+    class_weights:
+      - 0.46
+      - 0.10
+      - 0.11
+      - 0.32
+    ignore_index: -1
+    freeze_backbone: false
+    freeze_decoder: false
+    model_factory: EncoderDecoderFactory
+
+optimizer:
+  class_path: torch.optim.AdamW
+  init_args:
+    lr: 1.0e-5
+    weight_decay: 0.2
+
+lr_scheduler:
+  class_path: StepLR
+  init_args:
+    step_size: 3
+    gamma: 0.9
