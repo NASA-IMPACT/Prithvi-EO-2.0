@@ -12,6 +12,7 @@ import pickle
 import argparse
 from typing import Optional
 from functools import partial
+from lightning import LightningModule
 
 #prithvi encoder for HLS transformation to embedded 1024D space
 class prithvi(nn.Module):
@@ -98,7 +99,7 @@ class Pt1dConvBranch(nn.Module):
         return x
 
 # Define the regression model --simple regression to concatenate prithvi merra and regress to gpp lfux
-class RegressionModel_flux(nn.Module):
+class RegressionModel_flux(LightningModule):
     def __init__(self, prithvi_model):
         super(RegressionModel_flux, self).__init__()
         self.prithvi_model = prithvi_model
@@ -109,9 +110,9 @@ class RegressionModel_flux(nn.Module):
 
     def forward(self, im2d, pt1d):
         # Pass HLS im2d through the pretrained prithvi MAE encoder (with frozen weights)
-       # pri_enc = self.prithvi_model(im2d, temporal_coords=None, location_coords=None)#.output#batch x 6x1x1x50; none, none for loc, temporal, 0--mask; output: batch x 10 x 1024
-        #print(pri_enc.shape)
+        #pri_enc = self.prithvi_model(im2d, temporal_coords=None, location_coords=None)#.output#batch x 6x1x1x50; none, none for loc, temporal, 0--mask; output: batch x 10 x 1024
         pri_enc = self.prithvi_model(im2d, None, None, 0)#batch x 6x1x1x50; none, none for loc, temporal, 0--mask; output: batch x 10 x 1024
+
         # Pass pri_enc through the simple decoder
         dec_out = self.decoder(pri_enc[0])  # op Shape [batch_size, 64]
         # Pass MERRA pt1d through the convolutional layers
