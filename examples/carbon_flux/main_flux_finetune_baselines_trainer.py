@@ -40,6 +40,10 @@ import random
 from torcheval.metrics import R2Score
 from sklearn.metrics import r2_score
 import matplotlib.pyplot as plt
+from lightning.pytorch import Trainer
+from lightning.pytorch.callbacks import EarlyStopping, LearningRateMonitor, ModelCheckpoint, RichProgressBar
+from lightning.pytorch.loggers import TensorBoardLogger
+from torchgeo.trainers import BaseTask
 
 from terratorch.models import EncoderDecoderFactory 
 from terratorch.datasets import HLSBands
@@ -230,6 +234,31 @@ def main():
     optimizer = optim.AdamW(model_comb.parameters(), lr=learning_rate, weight_decay=0.05)
     scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.9, patience=5, verbose=True)
 
+    accelerator = "cuda"
+    #checkpoint_callback = ModelCheckpoint(monitor=task.monitor, save_top_k=1, save_last=True)
+    num_epochs = n_iteration
+    experiment = "carbon_flux"
+    default_root_dir = os.path.join("tutorial_experiments", experiment)
+    logger = TensorBoardLogger(save_dir=default_root_dir, name=experiment)
+
+    trainer = Trainer(
+        # precision="16-mixed",
+        accelerator=accelerator,
+        callbacks=[
+            RichProgressBar(),
+            #checkpoint_callback,
+            LearningRateMonitor(logging_interval="epoch"),
+        ],
+        #logger=logger,
+        max_epochs=num_epochs, # train only one epoch for demo
+        default_root_dir=default_root_dir,
+        log_every_n_steps=1,
+        check_val_every_n_epoch=200
+
+    )
+    trainer.fit(model=model_comb, datamodule=data_loader_flux_tr)
+
+    """
     # Training loop
     num_epochs = n_iteration
     #metrics to track while training
@@ -430,7 +459,7 @@ def main():
     plt.title('R2: ' + str(r2_unnorm_tr))
     plt.savefig(f'{plots_dir}R2_train_MSELoss_{num_epochs}_lr{learning_rate}_{optim_name}_sc{sch}_yr{year_to_test}.png', dpi=180)
     plt.close()
-    
+    """ 
 
 
 if __name__ == "__main__":
