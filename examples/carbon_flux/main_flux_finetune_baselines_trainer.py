@@ -26,7 +26,7 @@ from typing import Optional
 from functools import partial
 import pandas as pd
 import rasterio
-from flux_load_data_vInf3 import flux_dataset
+from flux_load_data_vInf3 import flux_dataset, flux_dataloader
 from flux_regress import RegressionModel_flux
 from flux_regress import prithvi
 #import wandb
@@ -161,8 +161,10 @@ def main():
     flux_dataset_train=flux_dataset([chips + '/' + str(ele) for ele in train_chips],means,stds, merra_train, merra_means, merra_stds,gpp_means, gpp_stds, train_target)
     flux_dataset_test=flux_dataset([chips + '/' + str(ele) for ele in test_chips],means,stds, merra_test, merra_means, merra_stds,gpp_means, gpp_stds, test_target)
 
-    data_loader_flux_tr = DataLoader(flux_dataset_train, batch_size=train_batch_size, shuffle=config["training"]["shuffle"])
-    data_loader_flux_test = DataLoader(flux_dataset_test, batch_size=test_batch_size, shuffle=config["testing"]["shuffle"])
+    #data_loader_flux_tr = DataLoader(flux_dataset_train, batch_size=train_batch_size, shuffle=config["training"]["shuffle"])
+    #data_loader_flux_test = DataLoader(flux_dataset_test, batch_size=test_batch_size, shuffle=config["testing"]["shuffle"])
+    
+    datamodule = flux_dataloader(flux_dataset_train, flux_dataset_test)
     print('done data load')
 
     wt_file='/home/jalmeida/Datasets/carbon_flux/checkpoints/checkpoint.pt'#checkpoint for 300M, or 300M T+L
@@ -256,7 +258,7 @@ def main():
         check_val_every_n_epoch=200
 
     )
-    trainer.fit(model=model_comb, datamodule=data_loader_flux_tr)
+    trainer.fit(model=model_comb, datamodule=datamodule)
 
     """
     # Training loop

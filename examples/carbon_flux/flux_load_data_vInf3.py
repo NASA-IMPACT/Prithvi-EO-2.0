@@ -5,6 +5,7 @@ import rasterio
 import os
 from torchgeo.datasets import NonGeoDataset
 from torchgeo.datamodules import NonGeoDataModule
+from lightning import LightningModule
 
 NO_DATA = -0.9999
 NO_DATA_FLOAT = 0.0001
@@ -85,5 +86,22 @@ class flux_dataset(NonGeoDataset):
         gpp_vars_norm=torch.from_numpy(np.array(gpp_vars_norm).reshape(1))
         #print('gpp is', gpp.shape)
         return final_image, merra_vars_norm, gpp_vars_norm
+
+class flux_dataloader(LightningModule):
+
+    def __init__(self, dataset_train=None, dataset_test=None):
+        super().__init__()
+        self.flux_dataset_train = dataset_train
+        self.flux_dataset_test = dataset_test
+    
+    def setup(self, stage:str=None):
+
+        pass
+
+    def train_dataloader(self):
+        data_loader_flux_tr = DataLoader(self.flux_dataset_train, batch_size=train_batch_size, shuffle=config["training"]["shuffle"])
+        
+    def test_dataloader(self):
+        data_loader_flux_test = DataLoader(self.flux_dataset_test, batch_size=test_batch_size, shuffle=config["testing"]["shuffle"])
 
 
