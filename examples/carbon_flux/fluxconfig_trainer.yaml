@@ -4,11 +4,11 @@ model:
   n_class: 1
   embed_dim: 1024
 
-device_name: "cpu" #"cuda"
+device_name: "cuda"
 
 n_iteration: 50
 
-prithvi_model_new_weight: "/home/jalmeida/Datasets/carbon_flux/checkpoints/checkpoint.pt"
+prithvi_model_new_weight: "/dccstor/jlsa931/carbon_flux/checkpoints/checkpoint.pt"
 
 training:
   train_batch_size: 4
@@ -40,7 +40,7 @@ test_year: 2020
 
 data:
   n_frame: 1
-  chips: "/home/jalmeida/Datasets/carbon_flux/train/images/"
+  chips: "/dccstor/jlsa931/carbon_flux/train/images/"
   input_size: [6,50, 50]
   means_for2018test: [0.07286696773903256, 0.10036772476940378, 0.11363777043869523, 0.2720510638470194, 0.2201167122609674, 0.1484162876040495]
   stds_for2018test: [0.13271414936598172, 0.13268933338964875, 0.1384673725283858, 0.12089142598551804, 0.10977084890500641, 0.0978705241034744]
@@ -70,7 +70,7 @@ data:
 
   
 logging:
-  checkpoint_dir: "/home/jalmeida/Datasets/carbon_flux/logs"
-  metrics_dir: "/home/jalmeida/Datasets/carbon_flux/logs"
-  plots_dir: "/home/jalmeida/Datasets/carbon_flux/logs"
+  checkpoint_dir: "/dccstor/jlsa931/carbon_flux/logs"
+  metrics_dir: "/dccstor/jlsa931/carbon_flux/logs"
+  plots_dir: "/dccstor/jlsa931/carbon_flux/logs"
   

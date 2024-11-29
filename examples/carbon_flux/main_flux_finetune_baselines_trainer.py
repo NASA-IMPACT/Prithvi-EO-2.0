@@ -104,7 +104,7 @@ class prithvi_terratorch(nn.Module):
 
 
 def main():
-    with open('fluxconfig.yaml', 'r') as file:
+    with open('fluxconfig_trainer.yaml', 'r') as file:
         config = yaml.safe_load(file)
 
     #read model config setups, data mean, std
@@ -165,10 +165,10 @@ def main():
     #data_loader_flux_tr = DataLoader(flux_dataset_train, batch_size=train_batch_size, shuffle=config["training"]["shuffle"])
     #data_loader_flux_test = DataLoader(flux_dataset_test, batch_size=test_batch_size, shuffle=config["testing"]["shuffle"])
     
-    datamodule = flux_dataloader(flux_dataset_train, flux_dataset_test)
+    datamodule = flux_dataloader(flux_dataset_train, flux_dataset_test, train_batch_size, test_batch_size, config)
     print('done data load')
 
-    wt_file='/home/jalmeida/Datasets/carbon_flux/checkpoints/checkpoint.pt'#checkpoint for 300M, or 300M T+L
+    wt_file='/dccstor/jlsa931/carbon_flux/checkpoints/checkpoint.pt'#checkpoint for 300M, or 300M T+L
 
     cf_full=get_config(None)
 
@@ -237,7 +237,7 @@ def main():
     optimizer = optim.AdamW(model_comb.parameters(), lr=learning_rate, weight_decay=0.05)
     scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.9, patience=5, verbose=True)
 
-    accelerator = "cpu" #"cuda"
+    accelerator = "cuda"
     #checkpoint_callback = ModelCheckpoint(monitor=task.monitor, save_top_k=1, save_last=True)
     num_epochs = n_iteration
     experiment = "carbon_flux"
@@ -259,6 +259,7 @@ def main():
         check_val_every_n_epoch=200
 
     )
+    
     task = PixelwiseRegressionTask(None, None, model=model_comb, loss="mse", optimizer="AdamW")
     trainer.fit(model=task, datamodule=datamodule)
     """
