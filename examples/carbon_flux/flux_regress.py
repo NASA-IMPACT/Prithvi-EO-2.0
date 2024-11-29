@@ -14,6 +14,8 @@ from typing import Optional
 from functools import partial
 from lightning import LightningModule
 
+from terratorch.models.model import ModelOutput
+
 #prithvi encoder for HLS transformation to embedded 1024D space
 class prithvi(nn.Module):
 
@@ -122,4 +124,5 @@ class RegressionModel_flux(LightningModule):
         # Final regression output
         output1 = self.fc_final(combined)  # Shape [batch_size, 1]
         #output2 = self.fc_final2(output1)  # Shape [batch_size, 1]
-        return output1
+        output = ModelOutput(output=output1)
+        return output

@@ -87,7 +87,7 @@ class flux_dataset(NonGeoDataset):
         gpp_vars_norm=torch.from_numpy(np.array(gpp_vars_norm).reshape(1))
         #print('gpp is', gpp.shape)
 
-        output = {"image": final_image, "pt1d": merra_vars_norm, "mask": gpp_vars_norm}
+        output = {"image": final_image.to(torch.float), "pt1d": merra_vars_norm.to(torch.float), "mask": gpp_vars_norm.to(torch.float32)}
 
         return output #final_image, merra_vars_norm, gpp_vars_norm
 

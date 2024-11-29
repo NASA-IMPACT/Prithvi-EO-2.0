@@ -237,8 +237,10 @@ def main():
     optimizer = optim.AdamW(model_comb.parameters(), lr=learning_rate, weight_decay=0.05)
     scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.9, patience=5, verbose=True)
 
+    task = PixelwiseRegressionTask(None, None, model=model_comb, loss="mse", optimizer="AdamW")
+
     accelerator = "cuda"
-    #checkpoint_callback = ModelCheckpoint(monitor=task.monitor, save_top_k=1, save_last=True)
+    checkpoint_callback = ModelCheckpoint(monitor=task.monitor, save_top_k=1, save_last=True)
     num_epochs = n_iteration
     experiment = "carbon_flux"
     default_root_dir = os.path.join("tutorial_experiments", experiment)
@@ -249,7 +251,7 @@ def main():
         accelerator=accelerator,
         callbacks=[
             RichProgressBar(),
-            #checkpoint_callback,
+            checkpoint_callback,
             LearningRateMonitor(logging_interval="epoch"),
         ],
         #logger=logger,
@@ -260,8 +262,8 @@ def main():
 
     )
     
-    task = PixelwiseRegressionTask(None, None, model=model_comb, loss="mse", optimizer="AdamW")
     trainer.fit(model=task, datamodule=datamodule)
+
     """
     # Training loop
     num_epochs = n_iteration
