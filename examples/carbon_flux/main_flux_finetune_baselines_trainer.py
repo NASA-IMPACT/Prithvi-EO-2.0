@@ -47,6 +47,7 @@ from torchgeo.trainers import BaseTask
 
 from terratorch.models import EncoderDecoderFactory 
 from terratorch.datasets import HLSBands
+from terratorch.tasks import PixelwiseRegressionTask
 
 seed = 0
 torch.manual_seed(seed)
@@ -236,7 +237,7 @@ def main():
     optimizer = optim.AdamW(model_comb.parameters(), lr=learning_rate, weight_decay=0.05)
     scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.9, patience=5, verbose=True)
 
-    accelerator = "cuda"
+    accelerator = "cpu" #"cuda"
     #checkpoint_callback = ModelCheckpoint(monitor=task.monitor, save_top_k=1, save_last=True)
     num_epochs = n_iteration
     experiment = "carbon_flux"
@@ -258,8 +259,8 @@ def main():
         check_val_every_n_epoch=200
 
     )
-    trainer.fit(model=model_comb, datamodule=datamodule)
-
+    task = PixelwiseRegressionTask(None, None, model=model_comb, loss="mse", optimizer="AdamW")
+    trainer.fit(model=task, datamodule=datamodule)
     """
     # Training loop
     num_epochs = n_iteration
