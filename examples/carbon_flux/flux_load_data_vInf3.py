@@ -87,7 +87,7 @@ class flux_dataset(NonGeoDataset):
         gpp_vars_norm=torch.from_numpy(np.array(gpp_vars_norm).reshape(1))
         #print('gpp is', gpp.shape)
 
-        output = {"image": final_image.to(torch.float), "pt1d": merra_vars_norm.to(torch.float), "mask": gpp_vars_norm.to(torch.float32)}
+        output = {"image": final_image.to(torch.float), "pt1d": merra_vars_norm.to(torch.float), "mask": gpp_vars_norm.to(torch.float), "filename": image_path}
 
         return output #final_image, merra_vars_norm, gpp_vars_norm
 
@@ -110,6 +110,10 @@ class flux_dataloader(LightningModule):
         return data_loader_flux_train        
 
     def test_dataloader(self):
+        data_loader_flux_test = DataLoader(self.flux_dataset_test, batch_size=self.test_batch_size, shuffle=self.config["testing"]["shuffle"])
+        return data_loader_flux_test
+
+    def predict_dataloader(self):
         data_loader_flux_test = DataLoader(self.flux_dataset_test, batch_size=self.test_batch_size, shuffle=self.config["testing"]["shuffle"])
         return data_loader_flux_test
 

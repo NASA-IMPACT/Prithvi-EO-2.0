@@ -55,9 +55,7 @@ class prithvi(nn.Module):
 
     def forward(self,x,temp,loc,mask):
         latent,_,ids_restore =self.prithvi_model.forward_encoder(x,temp,loc,mask) 
-        #print("latent shape",latent.shape)
         pred = self.prithvi_model.forward_decoder(latent, ids_restore, temp,loc)
-        #print("pred shape",pred.shape)
         return latent,pred
 
 #simple decoder to reduce dimensionality of prithvi enc output and flatten to 64D
@@ -110,7 +108,7 @@ class RegressionModel_flux(LightningModule):
         self.fc_final = nn.Linear(128, 1)  # Regression output
         #self.fc_final2 = nn.Linear(64, 1)  # Regression output
 
-    def forward(self, im2d, pt1d):
+    def forward(self, im2d, pt1d, **kwargs):
         # Pass HLS im2d through the pretrained prithvi MAE encoder (with frozen weights)
         #pri_enc = self.prithvi_model(im2d, temporal_coords=None, location_coords=None)#.output#batch x 6x1x1x50; none, none for loc, temporal, 0--mask; output: batch x 10 x 1024
         pri_enc = self.prithvi_model(im2d, None, None, 0)#batch x 6x1x1x50; none, none for loc, temporal, 0--mask; output: batch x 10 x 1024
@@ -125,4 +123,5 @@ class RegressionModel_flux(LightningModule):
         output1 = self.fc_final(combined)  # Shape [batch_size, 1]
         #output2 = self.fc_final2(output1)  # Shape [batch_size, 1]
         output = ModelOutput(output=output1)
+        
         return output

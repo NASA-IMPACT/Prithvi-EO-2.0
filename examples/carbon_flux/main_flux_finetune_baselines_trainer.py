@@ -1,7 +1,7 @@
 """
 main_flux_finetune_baselines.py
-This script reads in HLS S30/L30 data, MERRA-2 processed data uses 
-Prithvi 300M/ Prithvi 300 M with temporal and location embeddding to 
+This script reads in HLS S30/L30 data, MERRA-2 processed data uses
+Prithvi 300M/ Prithvi 300 M with temporal and location embeddding to
 regress GPP flux at eddy covariance observation sites.
 Author: Srija Chakraborty, Besart Mujeci, MERRA variables selection, flux inputs from Yanghui Kang
 Usage:
@@ -45,7 +45,7 @@ from lightning.pytorch.callbacks import EarlyStopping, LearningRateMonitor, Mode
 from lightning.pytorch.loggers import TensorBoardLogger
 from torchgeo.trainers import BaseTask
 
-from terratorch.models import EncoderDecoderFactory 
+from terratorch.models import EncoderDecoderFactory
 from terratorch.datasets import HLSBands
 from terratorch.tasks import PixelwiseRegressionTask
 
@@ -96,7 +96,7 @@ class prithvi_terratorch(nn.Module):
 
 
     def forward(self,x,temp,loc,mask):
-        latent,_,ids_restore, _ = self.prithvi_model.forward_encoder(x,temp,loc,mask) 
+        latent,_,ids_restore, _ = self.prithvi_model.forward_encoder(x,temp,loc,mask)
 
         pred = self.prithvi_model.forward_decoder(latent, ids_restore, temp, loc, self.input_size)
 
@@ -112,7 +112,7 @@ def main():
     n_channel=config["model"]["n_channel"]
     n_frame=config["data"]["n_frame"]
     n_iteration=config["n_iteration"]
-    checkpoint_dir=config["logging"]["checkpoint_dir"] 
+    checkpoint_dir=config["logging"]["checkpoint_dir"]
     metrics_dir=config["logging"]["metrics_dir"]
     plots_dir=config["logging"]["plots_dir"]
     train_batch_size=config["training"]["train_batch_size"]
@@ -126,6 +126,7 @@ def main():
     #class_weights=config["class_weights"]
     input_size=config["data"]["input_size"]
     chips=config["data"]["chips"]
+    chips_test=config["data"]["test_chips"]
     year_to_test=config["test_year"]
     print('TEST YEAR', year_to_test)
     means=config["data"][f"means_for{year_to_test}test"]
@@ -145,12 +146,12 @@ def main():
     test_chips = test_df['Chip'].tolist()
     merra_test = test_df[['T2MIN', 'T2MAX', 'T2MEAN', 'TSMDEWMEAN', 'GWETROOT', 'LHLAND', 'SHLAND', 'SWLAND', 'PARDFLAND', 'PRECTOTLAND']].values.tolist()
     test_target = test_df['GPP'].tolist()
-    
+
     train_df = df[df['year'] != year_to_test]
     train_chips = train_df['Chip'].tolist()
     merra_train = train_df[['T2MIN', 'T2MAX', 'T2MEAN', 'TSMDEWMEAN', 'GWETROOT', 'LHLAND', 'SHLAND', 'SWLAND', 'PARDFLAND','PRECTOTLAND']].values.tolist()
     train_target = train_df['GPP'].tolist()
-    
+
     means=np.array(means)
     stds=np.array(stds)
     merra_means=np.array(merra_means)
@@ -160,21 +161,22 @@ def main():
 
     #create ordered paits of hls, merra input and flux output based on splits
     flux_dataset_train=flux_dataset([chips + '/' + str(ele) for ele in train_chips],means,stds, merra_train, merra_means, merra_stds,gpp_means, gpp_stds, train_target)
-    flux_dataset_test=flux_dataset([chips + '/' + str(ele) for ele in test_chips],means,stds, merra_test, merra_means, merra_stds,gpp_means, gpp_stds, test_target)
+    flux_dataset_test=flux_dataset([chips_test + '/' + str(ele) for ele in test_chips],means,stds, merra_test, merra_means, merra_stds,gpp_means, gpp_stds, test_target)
 
     #data_loader_flux_tr = DataLoader(flux_dataset_train, batch_size=train_batch_size, shuffle=config["training"]["shuffle"])
     #data_loader_flux_test = DataLoader(flux_dataset_test, batch_size=test_batch_size, shuffle=config["testing"]["shuffle"])
-    
+
     datamodule = flux_dataloader(flux_dataset_train, flux_dataset_test, train_batch_size, test_batch_size, config)
+    datamodule_ = flux_dataloader(flux_dataset_train, flux_dataset_train, train_batch_size, test_batch_size, config)
     print('done data load')
 
     wt_file='/dccstor/jlsa931/carbon_flux/checkpoints/checkpoint.pt'#checkpoint for 300M, or 300M T+L
 
     cf_full=get_config(None)
 
-    #use_model="terratorch_factory" 
+    #use_model="terratorch_factory"
     use_model="terratorch"
-    #use_model="builtin" 
+    #use_model="builtin"
 
     if use_model == "builtin":
         prithvi_model = prithvi(prithvi_weight=wt_file, prithvi_config=cf_full,n_frame=1, input_size=[1,50,50])
@@ -245,7 +247,7 @@ def main():
     experiment = "carbon_flux"
     default_root_dir = os.path.join("tutorial_experiments", experiment)
     logger = TensorBoardLogger(save_dir=default_root_dir, name=experiment)
-
+    
     trainer = Trainer(
         # precision="16-mixed",
         accelerator=accelerator,
@@ -261,146 +263,39 @@ def main():
         check_val_every_n_epoch=200
 
     )
-    
+
     trainer.fit(model=task, datamodule=datamodule)
 
-    """
-    # Training loop
-    num_epochs = n_iteration
-    #metrics to track while training
-    loss_tot_running=[]
-    tot_mae_train=[]
-    tot_mse_train=[]
-    tot_r2=[]
-    best_track_loss = float('inf') #ideally val loss
-
-    for epoch in range(num_epochs):
-        running_loss=0.0
-        mae_train=[]
-        mse_train=[]
-        r2_train=[]
-        model_comb.train()
-
-        for im2d_batch, pt1d_batch, target_batch in data_loader_flux_tr:
-
-            pt1d_batch=pt1d_batch.to(torch.float32)
-            target_batch=target_batch.to(torch.float32)
-
-            # Move the model to the appropriate device
-            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-            model_comb.to(device)
-            im2d_batch = im2d_batch.to(device)
-            pt1d_batch = pt1d_batch.to(device)
-            target_batch = target_batch.to(device)
-
-
-            optimizer.zero_grad()#Zero your gradients for every batch
-            # Compute the loss and its gradients
-            outputs = model_comb(im2d_batch, pt1d_batch)
-            loss = criterion(outputs, target_batch)
-            loss.backward()
-            # Adjust learning weights
-            optimizer.step()
-            running_loss += loss.item()
+    results = trainer.predict(model=task, datamodule=datamodule, return_predictions=True)
+    results_train = trainer.predict(model=task, datamodule=datamodule_, return_predictions=True)
     
-            #print(f'Epoch {epoch+1}, Loss: {loss.item()}') --per batch loss
-            #log metrics for entire batch
-            mae_loss=get_mae(outputs, target_batch)#
-            mae_train.append(mae_loss)
-            mse_loss=get_mse(outputs, target_batch)
-            mse_train.append(mse_loss)##loss.item() training on MSE
-            r2=get_r_sq(outputs, target_batch)
-            r2_train.append(r2)
-
-
-        #----Reduce LR on plateau
-        before_lr = optimizer.param_groups[0]["lr"]
-        scheduler.step(loss)#ideally val loss
-        after_lr = optimizer.param_groups[0]["lr"]
-        print("Epoch %d: ADAMW lr %.6f -> %.6f" % (epoch, before_lr, after_lr))
-        
-        #----Reduce LR on plateau
-        epoch_loss_train_running=(running_loss)/len(data_loader_flux_tr)
-        print(f'Epoch {epoch+1}, TOTAL Loss: {epoch_loss_train_running}')
-        r2_train_ep=(np.sum(np.asarray(r2_train)))/len(data_loader_flux_tr)
-        mae_train_ep=(np.sum(np.asarray(mae_train)))/len(data_loader_flux_tr)
-        mse_train_ep=(np.sum(np.asarray(mse_train)))/len(data_loader_flux_tr)
-        print(f'Epoch {epoch+1}, TOTAL metrics: {r2_train_ep}, {mae_train_ep}, {mse_train_ep}')
-        loss_tot_running.append(epoch_loss_train_running)
-        tot_mae_train.append(mae_train_ep)
-        tot_mse_train.append(mse_train_ep)
-        tot_r2.append(r2_train_ep)
-        #save best -- with train only, ideally needs val set
-        if epoch_loss_train_running < best_track_loss:
-            print(f"Validation loss decreased ({best_track_loss:.6f} --> {epoch_loss_train_running:.6f}). Saving model...")
-            best_track_loss = epoch_loss_train_running
-            # Save checkpoint (best model), add tracking learning rate
-            torch.save({
-                'epoch': epoch + 1,
-                'model_state_dict': model_comb.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'best_val_loss': best_track_loss
-            }, f'{checkpoint_dir}model_MSELoss_ep{num_epochs}_lr{learning_rate}_{optim_name}_sc{sch}_yr{year_to_test}.pt')#drp{drp_rate}_v2
-
-    print("Training complete.")
-
-    #log metrics per epoch computed in normalized scale
-
-    loss_tot_running= np.asarray(loss_tot_running)
-    tot_mae_train= np.asarray(tot_mae_train)
-    tot_mse_train=np.asarray(tot_mse_train)
-    tot_r2=np.asarray(tot_r2)
-    
-    train_log_stack=np.transpose(np.vstack((loss_tot_running, tot_mae_train, tot_mse_train, tot_r2)))
-    np.savetxt(f"{metrics_dir}train_log_epoch_MSELoss_{num_epochs}_lr{learning_rate}_{optim_name}_sc{sch}_yr{year_to_test}.csv",train_log_stack,fmt='%10.6f', delimiter=',', newline='\n', header='train_loss, mae_per_epoch, mse_per_epoch, r2')
-
-    #save train loss convergence, add val if available
-    plt.plot(loss_tot_running)
-    plt.ylabel('mse loss (norm)')
-    plt.xlabel('epoch')
-    plt.savefig(f'{plots_dir}train_loss_MSELoss_{num_epochs}_lr{learning_rate}_{optim_name}_sc{sch}_yr{year_to_test}.png', dpi=180)
-    plt.close()
-
     ############ ---apply on test set (batches) and derive metrics,plots---###################
     # Testing Phase -- test set data in batches
-    model_comb.eval()
-    pred_test=[]
-    targ_test=[]
-    
-    with torch.no_grad():
-        for samp, (im2d_batch, pt1d_batch, target_batch) in enumerate(data_loader_flux_test):
-            pt1d_batch=pt1d_batch.to(torch.float32)
-            target_batch=target_batch.to(torch.float32)
-            # Move the model to the appropriate device
-            #device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-            #model_comb.to(device)
-            im2d_batch = im2d_batch.to(device)
-            pt1d_batch = pt1d_batch.to(device)
-            target_batch = target_batch.to(device)
-            outputs = model_comb(im2d_batch, pt1d_batch)
-            pred = outputs.cpu().numpy()
-            targ=target_batch.cpu().numpy()
-            pred_test.append(pred)
-            targ_test.append(targ)
+    pred_test=[i[0] for i in results]
+    targ_test=[j['mask'] for j in flux_dataset_test]
+    pred_train=[i[0] for i in results_train]
+    targ_train=[j['mask'] for j in flux_dataset_train]
+
     # Concatenate predictions across batches
     pred_test = np.concatenate(pred_test, axis=0)
-    targ_test = np.concatenate(targ_test, axis=0)
+    targ_test = np.concatenate(targ_test, axis=0)[:,None]
 
     r_norm=r2_score(targ_test, pred_test)#takes true, pred --R2 test set normalized scale (same as unnorm)
 
     #unnormalize data with train mean, std to save predictions, compute metrics and save
     #gpp_means, std as np.array
     mean_gpp = gpp_means.reshape(-1,1,1)  # Mean across height and width, for each channel
-    stds_gpp = gpp_stds.reshape(-1,1,1)   
+    stds_gpp = gpp_stds.reshape(-1,1,1)
 
     pred_final_unnorm=pred_test*stds_gpp + mean_gpp
     targ_final_unnorm=targ_test*stds_gpp + mean_gpp
-    pred_final_unnorm=np.reshape(pred_final_unnorm,(pred_final_unnorm.shape[1],1))
-    targ_final_unnorm=np.reshape(targ_final_unnorm,(targ_final_unnorm.shape[1],1))
+    pred_final_unnorm=pred_final_unnorm.flatten()[:, None] #np.reshape(pred_final_unnorm,(pred_final_unnorm.shape[1],1))
+    targ_final_unnorm=targ_final_unnorm.flatten()[:, None] #np.reshape(targ_final_unnorm,(targ_final_unnorm.shape[2],1))
     r2_unnorm=r2_score(targ_final_unnorm, pred_final_unnorm)#true,pred
     mse_unnorm= (targ_final_unnorm - pred_final_unnorm) ** 2
-    mae_unnorm= (np.abs(targ_final_unnorm - pred_final_unnorm)) 
+    mae_unnorm= (np.abs(targ_final_unnorm - pred_final_unnorm))
     rel_err_unnorm= (np.abs(targ_final_unnorm-pred_final_unnorm)/targ_final_unnorm)#(obs-exp)/obs -- obs: true reading, exp: model pred
+    
     test_stack=np.hstack((pred_test, targ_test, pred_final_unnorm, targ_final_unnorm, mse_unnorm, mae_unnorm, rel_err_unnorm))
     np.savetxt(f"{metrics_dir}test_eval_MSELoss_ep{num_epochs}_lr{learning_rate}_{optim_name}_sc{sch}_yr{year_to_test}.csv",test_stack,fmt='%10.6f', delimiter=',', newline='\n', header='pred_n, tar_n, pred, tar, mse,mae, rel_err')
 
@@ -416,42 +311,24 @@ def main():
 
     ############ ---apply on train set (batches) in eval mode and derive metrics,plots---###################
     # evaluate performance on training data
-    model_comb.eval()
-    pred_test_tr=[]
-    targ_test_tr=[]
-    
-    with torch.no_grad():
-        for samp, (im2d_batch, pt1d_batch, target_batch) in enumerate(data_loader_flux_tr):
-            pt1d_batch=pt1d_batch.to(torch.float32)
-            target_batch=target_batch.to(torch.float32)
-            # Move the model to the appropriate device
-            #device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-            #model_comb.to(device)
-            im2d_batch = im2d_batch.to(device)
-            pt1d_batch = pt1d_batch.to(device)
-            target_batch = target_batch.to(device)
-            outputs = model_comb(im2d_batch, pt1d_batch)
-            
-            pred = outputs.cpu().numpy()
-            targ=target_batch.cpu().numpy()
-            pred_test_tr.append(pred)
-            targ_test_tr.append(targ)
-            
+    pred_test_tr=[i[0] for i in results_train]
+    targ_test_tr=[j['mask'] for j in flux_dataset_train]
+
     # Concatenate predictions across batches
     pred_test_tr = np.concatenate(pred_test_tr, axis=0)
-    targ_test_tr = np.concatenate(targ_test_tr, axis=0)
-    
+    targ_test_tr = np.concatenate(targ_test_tr, axis=0)[:,None]
+
     #unnormalize and save pred, metrics on full training set
     pred_final_unnorm_tr=pred_test_tr*stds_gpp + mean_gpp
     targ_final_unnorm_tr=targ_test_tr*stds_gpp + mean_gpp
-    print(pred_final_unnorm_tr.shape, targ_final_unnorm_tr.shape)
-    pred_final_unnorm_tr=np.reshape(pred_final_unnorm_tr,(pred_final_unnorm_tr.shape[1],1))
-    targ_final_unnorm_tr=np.reshape(targ_final_unnorm_tr,(targ_final_unnorm_tr.shape[1],1))
+   
+    pred_final_unnorm_tr=pred_final_unnorm_tr.flatten()[:, None] #np.reshape(pred_final_unnorm_tr,(pred_final_unnorm_tr.shape[1],1))
+    targ_final_unnorm_tr=targ_final_unnorm_tr.flatten()[:, None] #np.reshape(targ_final_unnorm_tr,(targ_final_unnorm_tr.shape[2],1))
     r2_unnorm_tr=r2_score(targ_final_unnorm_tr, pred_final_unnorm_tr)#true,pred
     print(r2_unnorm_tr)
     #mse_norm= (test_pred - test_target) ** 2
     mse_unnorm_tr= (targ_final_unnorm_tr - pred_final_unnorm_tr) ** 2
-    mae_unnorm_tr= (np.abs(targ_final_unnorm_tr - pred_final_unnorm_tr)) 
+    mae_unnorm_tr= (np.abs(targ_final_unnorm_tr - pred_final_unnorm_tr))
     rel_err_unnorm_tr= (np.abs(targ_final_unnorm_tr-pred_final_unnorm_tr)/targ_final_unnorm_tr)
     train_stack=np.hstack((pred_test_tr, targ_test_tr, pred_final_unnorm_tr, targ_final_unnorm_tr ,mse_unnorm_tr, mae_unnorm_tr, rel_err_unnorm_tr))
     np.savetxt(f"{metrics_dir}train_eval_MSELoss_ep{num_epochs}_lr{learning_rate}_{optim_name}_sc{sch}_yr{year_to_test}.csv",test_stack,fmt='%10.6f', delimiter=',', newline='\n', header='pred_n, tar_n, pred, tar, mse,mae, rel_err')
@@ -465,7 +342,6 @@ def main():
     plt.title('R2: ' + str(r2_unnorm_tr))
     plt.savefig(f'{plots_dir}R2_train_MSELoss_{num_epochs}_lr{learning_rate}_{optim_name}_sc{sch}_yr{year_to_test}.png', dpi=180)
     plt.close()
-    """ 
 
 
 if __name__ == "__main__":
