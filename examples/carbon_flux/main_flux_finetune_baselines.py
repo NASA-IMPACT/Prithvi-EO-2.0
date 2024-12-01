@@ -165,7 +165,6 @@ def main():
 
     cf_full=get_config(None)
 
-    #use_model="terratorch_factory" 
     use_model="terratorch"
     #use_model="builtin" 
 
@@ -190,33 +189,8 @@ def main():
         prithvi_model = prithvi_terratorch(wt_file, prithvi_instance, [1, 50, 50])
 
     else:
-        model_factory = EncoderDecoderFactory()
 
-        prithvi_model_ = model_factory.build_model(task="regression",
-                backbone="prithvi_vit_300",
-                decoder="IdentityDecoder",
-                backbone_bands=[
-                    HLSBands.BLUE,
-                    HLSBands.GREEN,
-                    HLSBands.RED,
-                    HLSBands.NIR_NARROW,
-                    HLSBands.SWIR_1,
-                    HLSBands.SWIR_2,
-                ],
-                #num_classes=2,
-                backbone_patch_size=cf_full.MODEL.PATCH_SIZE[1],
-                backbone_pretrained=False, #True,
-                backbone_num_frames=1,
-                backbone_in_chans=len(cf_full.DATA.BANDS),
-                backbone_embed_dim=cf_full.MODEL.EMBED_DIM,
-                backbone_depth=cf_full.MODEL.DEPTH,
-                backbone_num_heads=cf_full.MODEL.NUM_HEADS,
-                backbone_mlp_ratio=cf_full.MODEL.MLP_RATIO,
-                head_dropout=0.2,
-                backbone_input_size=[1,50,50],
-            )
-
-        prithvi_model = prithvi_model_
+        raise Exception(f"Case {use_model} not supported.")
 
     # Instantiate the regression model
     model_comb = RegressionModel_flux(prithvi_model)
