@@ -48,6 +48,7 @@ from torchgeo.trainers import BaseTask
 from terratorch.models import EncoderDecoderFactory
 from terratorch.datasets import HLSBands
 from terratorch.tasks import PixelwiseRegressionTask
+from terratorch.models.pixel_wise_model import freeze_module
 
 seed = 0
 torch.manual_seed(seed)
@@ -94,6 +95,8 @@ class prithvi_terratorch(nn.Module):
 
         _ = self.prithvi_model.load_state_dict(self.checkpoint, strict=False)
 
+    def freeze_encoder(self):
+        freeze_module(self.prithvi_model)
 
     def forward(self,x,temp,loc,mask):
         latent,_,ids_restore, _ = self.prithvi_model.forward_encoder(x,temp,loc,mask)
@@ -193,7 +196,7 @@ def main():
                 padding=True,
         )
         prithvi_model = prithvi_terratorch(wt_file, prithvi_instance, [1, 50, 50])
-
+        prithvi_model.freeze_encoder()
     else:
         raise Exception(f"Option {use_model} not defined.")
 
@@ -201,8 +204,8 @@ def main():
     model_comb = RegressionModel_flux(prithvi_model)
 
     # Set MAE encoder weights to be frozen
-    for param in model_comb.prithvi_model.parameters():
-        param.requires_grad = False
+    #for param in model_comb.prithvi_model.parameters():
+    #    param.requires_grad = False
 
     # Loss function and optimizer
     criterion = nn.MSELoss()
