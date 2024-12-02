@@ -7,6 +7,9 @@
 
 #### **IBM Research, NASA Marshall Space Flight Center, The University of Alabama in Huntsville, University of Iceland, Jülich Supercomputing Centre, Virginia Tech, Arizona State University, Oregon State University, Clark University, Boston University, University of California, Berkeley, Earth from Space Institute **
 
+[![Website](https://img.shields.io/badge/Project-Website-87CEEB)](https://huggingface.co/ibm-nasa-geospatial)
+[![paper](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)]()
+
 This repository contains code and examples based on the [TerraTorch](github.com/IBM/terratorch) library for fine-tuning [Prithvi-EO-2.0](https://huggingface.co/spaces/ibm-nasa-geospatial/Prithvi-EO-2.0-Demo), a more powerful version of the foundation model [Prithvi](https://huggingface.co/ibm-nasa-geospatial/Prithvi-100M) developed by IBM and NASA. Trained on 4.2M global time series samples on the JUWELS HPC system at the Jülich Supercomputing Centre (JSC) using NASA’s Harmonized Landsat and Sentinel data at 30m resolution, it offers significant improvements over its predecessor. 
 
 ## Architecture Overview
@@ -20,10 +23,10 @@ Our main modifications to the ViT architecture are the 3D positional embedding a
 
 | Model | Details | Weights |
 | ------------- | ------------- | ------------- |
-|Prithvi-EO-2.0-300M   | Pretrained 300M parameter model  | [https://huggingface.co/ibm-nasa-geospatial/Prithvi-Granite-EO/Prithvi_EO_V2_300M](https://huggingface.co/ibm-nasa-geospatial/Prithvi-Granite-EO/Prithvi_EO_V2_300M)  |
-|Prithvi-EO-2.0-300M-TL   | Pretrained 300M parameter model with temporal and location embeddings | [https://huggingface.co/ibm-nasa-geospatial/Prithvi-Granite-EO/Prithvi_EO_V2_300M_TL](https://huggingface.co/ibm-nasa-geospatial/Prithvi-Granite-EO/Prithvi_EO_V2_300M_TL)  |
-|Prithvi-EO-2.0-600M   | Pretrained 600M parameter model  | [https://huggingface.co/ibm-nasa-geospatial/Prithvi-Granite-EO/Prithvi_EO_V2_600M](https://huggingface.co/ibm-nasa-geospatial/Prithvi-Granite-EO/Prithvi_EO_V2_600M) |
-|Prithvi-EO-2.0-600M-TL   | Pretrained 600M parameter model with temporal and location embeddings | [https://huggingface.co/ibm-nasa-geospatial/Prithvi-Granite-EO/Prithvi_EO_V2_600M_TL](https://huggingface.co/ibm-nasa-geospatial/Prithvi-Granite-EO/Prithvi_EO_V2_600M_TL)   |
+|Prithvi-EO-2.0-300M   | Pretrained 300M parameter model  | [https://huggingface.co/ibm-nasa-geospatial/Prithvi-EO-2.0-300M](https://huggingface.co/ibm-nasa-geospatial/Prithvi-EO-2.0-300M)  |
+|Prithvi-EO-2.0-300M-TL   | Pretrained 300M parameter model with temporal and location embeddings | [https://huggingface.co/ibm-nasa-geospatial/Prithvi-EO-2.0-300M-TL](https://huggingface.co/ibm-nasa-geospatial/Prithvi-EO-2.0-300M-TL)  |
+|Prithvi-EO-2.0-600M   | Pretrained 600M parameter model  | [https://huggingface.co/ibm-nasa-geospatial/Prithvi-EO-2.0-600M](https://huggingface.co/ibm-nasa-geospatial/Prithvi-EO-2.0-600M) |
+|Prithvi-EO-2.0-600M-TL   | Pretrained 600M parameter model with temporal and location embeddings | [https://huggingface.co/ibm-nasa-geospatial/Prithvi-EO-2.0-600M-TL](https://huggingface.co/ibm-nasa-geospatial/Prithvi-EO-2.0-600M-TL)   |
 
 
 ## Benchmarking
