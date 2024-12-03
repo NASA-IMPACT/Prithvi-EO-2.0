@@ -9,7 +9,7 @@ trainer:
     class_path: TensorBoardLogger
     init_args:
       save_dir: <your_dir>
-      name: vitB_adamw.lr1.0e-5_wd02_steplr.3.09_fulldata
+      name: trainer_name
   callbacks:
     - class_path: RichProgressBar
     - class_path: LearningRateMonitor
@@ -47,14 +47,14 @@ data:
       - class_path: UnflattenTemporalFromChannels
         init_args:
           n_timesteps: 3
-    data_root: "/dccstor/geofm-finetuning/datasets/BurnIntensity/burn_intensity"
+    data_root: <dataset_path>
 
 model:
   class_path: terratorch.tasks.SemanticSegmentationTask
   init_args:
     model_args:
       backbone_pretrained: True
-      backbone: prithvi_vit_100 # can be vit_100, vit_300 or vit_600
+      backbone: <prithvi_model> #  choose your prithvi model
       decoder: UperNetDecoder
       backbone_pretrained: True
       backbone_in_channels: 6
@@ -121,7 +121,7 @@ optimizer:
   class_path: torch.optim.AdamW
   init_args:
     lr: 1.0e-5
-    weight_decay: 0.2
+    weight_decay: 0.1
 
 lr_scheduler:
   class_path: StepLR
