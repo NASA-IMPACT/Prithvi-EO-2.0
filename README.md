@@ -33,6 +33,9 @@ Our main modifications to the ViT architecture are the 3D positional embedding a
 
 We used the most popular and rigorous benchmark framework available for Earth Observation foundation models: [GEO-Bench](https://github.com/ServiceNow/geo-bench). 
 
+<img src="https://github.com/user-attachments/assets/fc976298-dffb-45ed-906e-b561c89ead65" width="750" height="450">
+
+
 ## Fine-tuning
 
 We have fined-tuned Prithvi-EO-2.0 for downstream tasks in different domains of interest using [TerraTorch](github.com/IBM/terratorch). Below we provide a list of the downstream tasks, along with links to the datasets, sample TerraTorch configuration files (or custom code, in the case of Gross Primary Product) and sample notebooks for fine-tuning.
