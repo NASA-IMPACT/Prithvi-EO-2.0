@@ -1,46 +1,41 @@
 model:
   name: "Base_Flux"
   n_channel: 6
-  n_class: 1
-  embed_dim: 1280
-
+  embed_dim: 1024
+  patch_size:
+      - 1
+      - 16
+      - 16
+  num_heads: 16
+  mlp_ratio: 4
+  decoder_depth: 8
+  head_dropout: 0.2
 device_name: "cuda"
-
 n_iteration: 50
-
-prithvi_model_new_weight: "/vol/cephfs/impact/srija/Prithvi-Global-downstream_v0/new_flood/checkpoint_H.pt"
-
+prithvi_model_new_weight: "/dccstor/jlsa931/carbon_flux/checkpoints/checkpoint.pt"
 training:
   train_batch_size: 16
   shuffle: True
-
   optimizer:
     name: "AdamW"
     params:
       lr: 5e-5
-       
-
   scheduler:
     use: 1
     name: "ReduceLROnPlateau"
-
   dropout:
     use: 1
     val: 0.2
-
   bn: 1
-
 testing:
   test_batch_size: 16
   shuffle: False
-
 normalization: "z-score-std"
-test_year: 2021
-
-
+test_year: 2020
 data:
   n_frame: 1
-  chips: "/vol/cephfs/impact/srija/Prithvi-Global-downstream_v0/new_flood_v2/chips/"
+  chips: "/dccstor/jlsa931/carbon_flux/train/images/" # Example directory
+  test_chips: "/dccstor/jlsa931/carbon_flux/test/images/" #Example diretory
   input_size: [6,50, 50]
   means_for2018test: [0.07286696773903256, 0.10036772476940378, 0.11363777043869523, 0.2720510638470194, 0.2201167122609674, 0.1484162876040495]
   stds_for2018test: [0.13271414936598172, 0.13268933338964875, 0.1384673725283858, 0.12089142598551804, 0.10977084890500641, 0.0978705241034744]
@@ -66,10 +61,8 @@ data:
   merra_stds_for2021test: [9.040586,11.143439,10.063070,8.121612,0.172953,52.172274,47.056911,76.875468,9.553304,0.000010]
   gpp_means_for2021test: [3.787582]
   gpp_stds_for2021test: [3.862494]
-
-  
-
 logging:
-  checkpoint_dir: "/vol/cephfs/impact/srija/Prithvi-Global-downstream_v0/Prithvi-global-v1/flux_base_pred_logs/"
-  metrics_dir: "/vol/cephfs/impact/srija/Prithvi-Global-downstream_v0/Prithvi-global-v1/flux_base_pred_logs/metrics/"
-  plots_dir: "/vol/cephfs/impact/srija/Prithvi-Global-downstream_v0/Prithvi-global-v1/flux_base_pred_logs/plots/"
+  checkpoint_dir: "/dccstor/jlsa931/carbon_flux/logs"
+  metrics_dir: "/dccstor/jlsa931/carbon_flux/logs"
+  plots_dir: "/dccstor/jlsa931/carbon_flux/logs"
+  

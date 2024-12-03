@@ -1,9 +1,9 @@
 # CO_2 Flux:
 
-This is a regression task where HLS image and corresonding MERRA-2 data for a region are passed parallely
+This is a regression task where HLS images and corresponding MERRA-2 data for a region are passed in parallel
 to the model and combine the result to predict CO_2 flux value for that region. 
 
-HLS image is passed through prithvi_pretrained model, but not the MERRA-2 data.
+HLS images are passed through prithvi_pretrained model, but not the MERRA-2 data.
 
 However both prithvi output and MERRA-2 data are projected in same embedding space to combine.
 

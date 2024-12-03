@@ -5,57 +5,13 @@ import os
 import numpy as np
 import rasterio
 import yaml
-from Prithvi_global_v1.mae.models_mae import MaskedAutoencoderViT
-from Prithvi_global_v1.mae.config import get_config
 import pickle
-#from Prithvi_global_v1.mae.config import get_config
 import argparse
 from typing import Optional
 from functools import partial
+from lightning import LightningModule
 
-#prithvi encoder for HLS transformation to embedded 1024D space
-class prithvi(nn.Module):
-
-    def __init__(self,prithvi_weight,prithvi_config,n_frame,input_size):
-
-        super(prithvi,self).__init__()
-
-        # load checkpoint for Prithvi_global
-        
-        self.weights_path =prithvi_weight
-        self.checkpoint = torch.load(self.weights_path)
-        config = prithvi_config
-
-        
-        self.prithvi_model=MaskedAutoencoderViT(input_size=input_size,
-                                 patch_size=config.MODEL.PATCH_SIZE,
-                                 in_chans=len(config.DATA.BANDS),
-                                 embed_dim=config.MODEL.EMBED_DIM,
-                                 depth=config.MODEL.DEPTH,
-                                 num_heads=config.MODEL.NUM_HEADS,
-                                 decoder_embed_dim=config.MODEL.DECODER_EMBED_DIM,
-                                 decoder_depth=config.MODEL.DECODER_DEPTH,
-                                 decoder_num_heads=config.MODEL.DECODER_NUM_HEADS,
-                                 mlp_ratio=config.MODEL.MLP_RATIO,
-                                 norm_layer=partial(nn.LayerNorm, eps=1e-6),
-                                 norm_pix_loss=config.MODEL.NORM_PIX_LOSS,
-                                 coords_encoding=config.MODEL.COORDS_ENCODING,
-                                 coords_drop_rate=config.MODEL.COORDS_DROP_RATE,
-                                 coords_scale_learn=config.MODEL.COORDS_SCALE_LEARN,
-                                 drop_channels_rate=config.MODEL.DROP_CHANNELS_RATE)
-
-        self.prithvi_model.eval() # to double check the prithvi weights being frozen
-        #print("checkpoint names:",self.checkpoint.keys())
-
-        _ = self.prithvi_model.load_state_dict(self.checkpoint, strict=False)
-
-
-    def forward(self,x,temp,loc,mask):
-        latent,_,ids_restore =self.prithvi_model.forward_encoder(x,temp,loc,mask) 
-        #print("latent shape",latent.shape)
-        pred = self.prithvi_model.forward_decoder(latent, ids_restore, temp,loc)
-        #print("pred shape",pred.shape)
-        return latent,pred
+from terratorch.models.model import ModelOutput
 
 #simple decoder to reduce dimensionality of prithvi enc output and flatten to 64D
 class SimpleDecoder_comb_v2(nn.Module):
@@ -98,7 +54,7 @@ class Pt1dConvBranch(nn.Module):
         return x
 
 # Define the regression model --simple regression to concatenate prithvi merra and regress to gpp lfux
-class RegressionModel_flux(nn.Module):
+class RegressionModel_flux(LightningModule):
     def __init__(self, prithvi_model):
         super(RegressionModel_flux, self).__init__()
         self.prithvi_model = prithvi_model
@@ -107,13 +63,13 @@ class RegressionModel_flux(nn.Module):
         self.fc_final = nn.Linear(128, 1)  # Regression output
         #self.fc_final2 = nn.Linear(64, 1)  # Regression output
 
-    def forward(self, im2d, pt1d):
+    def forward(self, im2d, pt1d, **kwargs):
         # Pass HLS im2d through the pretrained prithvi MAE encoder (with frozen weights)
-       # pri_enc = self.prithvi_model(im2d, temporal_coords=None, location_coords=None)#.output#batch x 6x1x1x50; none, none for loc, temporal, 0--mask; output: batch x 10 x 1024
-        #print(pri_enc.shape)
+        #pri_enc = self.prithvi_model(im2d, temporal_coords=None, location_coords=None)#.output#batch x 6x1x1x50; none, none for loc, temporal, 0--mask; output: batch x 10 x 1024
         pri_enc = self.prithvi_model(im2d, None, None, 0)#batch x 6x1x1x50; none, none for loc, temporal, 0--mask; output: batch x 10 x 1024
+
         # Pass pri_enc through the simple decoder
-        dec_out = self.decoder(pri_enc[0])  # op Shape [batch_size, 64]
+        dec_out = self.decoder(pri_enc)  # op Shape [batch_size, 64]
         # Pass MERRA pt1d through the convolutional layers
         pt1d_out = self.pt1d_conv_branch(pt1d)  # Shape [batch_size, 64]
         # Concatenate decoder output and pt1d output
@@ -121,4 +77,6 @@ class RegressionModel_flux(nn.Module):
         # Final regression output
         output1 = self.fc_final(combined)  # Shape [batch_size, 1]
         #output2 = self.fc_final2(output1)  # Shape [batch_size, 1]
-        return output1
+        output = ModelOutput(output=output1)
+        
+        return output

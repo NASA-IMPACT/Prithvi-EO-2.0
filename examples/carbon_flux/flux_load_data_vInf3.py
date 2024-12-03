@@ -3,6 +3,10 @@ import torch
 from torch.utils.data import Dataset
 import rasterio
 import os
+from torchgeo.datasets import NonGeoDataset
+from torchgeo.datamodules import NonGeoDataModule
+from lightning import LightningModule
+from torch.utils.data import DataLoader
 
 NO_DATA = -0.9999
 NO_DATA_FLOAT = 0.0001
@@ -41,7 +45,7 @@ def preprocess_image(image,means,stds):
 
 
 #consistent for HLS -- modified to add merra, flux -- these have z-score processing as hls
-class flux_dataset(Dataset):
+class flux_dataset(NonGeoDataset):
 
     def __init__(self,path,means,stds, merras_data, merra_means, merra_stds, gpp_mean, gpp_std, target):
         self.data_dir=path
@@ -82,7 +86,34 @@ class flux_dataset(Dataset):
         gpp_vars_norm=(self.target[idx]-mean_gpp)/(stds_gpp)
         gpp_vars_norm=torch.from_numpy(np.array(gpp_vars_norm).reshape(1))
         #print('gpp is', gpp.shape)
-        return final_image, merra_vars_norm, gpp_vars_norm
 
+        output = {"image": final_image.to(torch.float), "pt1d": merra_vars_norm.to(torch.float), "mask": gpp_vars_norm.to(torch.float), "filename": image_path}
 
+        return output #final_image, merra_vars_norm, gpp_vars_norm
+
+class flux_dataloader(LightningModule):
+
+    def __init__(self, dataset_train=None, dataset_test=None, train_batch_size=None, test_batch_size=None, config=None):
+        super().__init__()
+        self.flux_dataset_train = dataset_train
+        self.flux_dataset_test = dataset_test
+        self.train_batch_size = train_batch_size
+        self.test_batch_size = test_batch_size
+        self.config = config 
+
+    def setup(self, stage:str=None):
+
+        pass
+
+    def train_dataloader(self):
+        data_loader_flux_train = DataLoader(self.flux_dataset_train, batch_size=self.train_batch_size, shuffle=self.config["training"]["shuffle"])
+        return data_loader_flux_train        
+
+    def test_dataloader(self):
+        data_loader_flux_test = DataLoader(self.flux_dataset_test, batch_size=self.test_batch_size, shuffle=self.config["testing"]["shuffle"])
+        return data_loader_flux_test
+
+    def predict_dataloader(self):
+        data_loader_flux_test = DataLoader(self.flux_dataset_test, batch_size=self.test_batch_size, shuffle=self.config["testing"]["shuffle"])
+        return data_loader_flux_test
 
