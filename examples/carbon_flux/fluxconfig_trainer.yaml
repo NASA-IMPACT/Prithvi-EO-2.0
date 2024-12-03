@@ -2,7 +2,7 @@ model:
   name: "Base_Flux"
   n_channel: 6
   n_class: 1
-  embed_dim: 1024
+  embed_dim: 1280
 
 device_name: "cuda"
 
