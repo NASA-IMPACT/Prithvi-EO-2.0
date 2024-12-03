@@ -5,8 +5,8 @@ import os
 import numpy as np
 import rasterio
 import yaml
-from Prithvi_global_v1.mae.models_mae import MaskedAutoencoderViT
-from Prithvi_global_v1.mae.config import get_config
+from aux.mae.models_mae import MaskedAutoencoderViT
+from aux.mae.config import get_config
 import pickle
 #from Prithvi_global_v1.mae.config import get_config
 import argparse
@@ -114,7 +114,7 @@ class RegressionModel_flux(LightningModule):
         pri_enc = self.prithvi_model(im2d, None, None, 0)#batch x 6x1x1x50; none, none for loc, temporal, 0--mask; output: batch x 10 x 1024
 
         # Pass pri_enc through the simple decoder
-        dec_out = self.decoder(pri_enc[0])  # op Shape [batch_size, 64]
+        dec_out = self.decoder(pri_enc)  # op Shape [batch_size, 64]
         # Pass MERRA pt1d through the convolutional layers
         pt1d_out = self.pt1d_conv_branch(pt1d)  # Shape [batch_size, 64]
         # Concatenate decoder output and pt1d output
