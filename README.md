@@ -12,6 +12,11 @@
 
 This repository contains code and examples based on the [TerraTorch](github.com/IBM/terratorch) library for fine-tuning [Prithvi-EO-2.0](https://huggingface.co/spaces/ibm-nasa-geospatial/Prithvi-EO-2.0-Demo), a more powerful version of the foundation model [Prithvi](https://huggingface.co/ibm-nasa-geospatial/Prithvi-100M) developed by IBM and NASA. Trained on 4.2M global time series samples on the JUWELS HPC system at the Jülich Supercomputing Centre (JSC) using NASA’s Harmonized Landsat and Sentinel data at 30m resolution, it offers significant improvements over its predecessor. 
 
+## 📢 Latest Updates
+
+- **Time line**: Prithvi-EO-2.0 pre-trained models and fine-tuning datasets released on [Hugging Face](https://huggingface.co/ibm-nasa-geospatial). 
+- **Time line**: Prithvi-EO-2.0 paper released on [arxiv link](). 🔥🔥
+
 ## Architecture Overview
 
 Prithvi-EO-2.0 is based on the ViT architecture, pre-trained using a masked autoencoder (MAE) approach, with two major modifications as shown in the figure below. First, we introduce a random dropout mechanism that completely removes different bands before the patch embeddings, with the aim of improving the ability of the model to deal with missingness of data. Second, we make modifications to support inputs with temporal and multi-spectral characteristics. 
