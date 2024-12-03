@@ -55,7 +55,7 @@ We have fined-tuned Prithvi-EO-2.0 for downstream tasks in different domains of 
 |Landslide Detection|[https://huggingface.co/datasets/ibm-nasa-geospatial/Landslide4sense](https://huggingface.co/datasets/ibm-nasa-geospatial/Landslide4sense) | [landslide.yaml](https://github.com/NASA-IMPACT/Prithvi-EO-2.0/blob/main/configs/landslide.yaml)|
 |Multi-temporal Crop Segmentation (US)| [https://huggingface.co/datasets/ibm-nasa-geospatial/multi-temporal-crop-classification](https://huggingface.co/datasets/ibm-nasa-geospatial/multi-temporal-crop-classification)| 
 |Multi-temporal Land Cover and Crop Classification (Europe)|[https://datapub.fz-juelich.de/sen4map/](https://datapub.fz-juelich.de/sen4map/) | [sen4map_land-cover.yaml](https://github.com/NASA-IMPACT/Prithvi-EO-2.0/blob/main/sen4map_land-cover.yaml)  [sen4map_crops.yaml](https://github.com/NASA-IMPACT/Prithvi-EO-2.0/blob/main/sen4map_crops.yaml)
-|Above Ground Biomass Estimation| [https://huggingface.co/datasets/ibm-nasa-geospatial/BioMassters](https://huggingface.co/datasets/ibm-nasa-geospatial/BioMassters)|biomassters.yaml](https://github.com/NASA-IMPACT/Prithvi-EO-2.0/blob/main/configs/biomassters.yaml) |
+|Above Ground Biomass Estimation| [https://huggingface.co/datasets/ibm-nasa-geospatial/BioMassters](https://huggingface.co/datasets/ibm-nasa-geospatial/BioMassters)|[biomassters.yaml](https://github.com/NASA-IMPACT/Prithvi-EO-2.0/blob/main/configs/biomassters.yaml) |
 |Gross Primary Productivity Estimation|[https://huggingface.co/datasets/ibm-nasa-geospatial/hls_merra2_gppFlux](https://huggingface.co/datasets/ibm-nasa-geospatial/hls_merra2_gppFlux)|[carbon_flux](https://github.com/NASA-IMPACT/Prithvi-EO-2.0/tree/main/examples/carbon_flux)| 
 
 ### Sample Fine-tuning Notebooks
