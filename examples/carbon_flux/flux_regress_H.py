@@ -5,7 +5,6 @@ import os
 import numpy as np
 import rasterio
 import yaml
-from aux.mae.models_mae import MaskedAutoencoderViT
 from aux.mae.config_H import get_config
 import pickle
 #from Prithvi_global_v1.mae.config import get_config
@@ -13,49 +12,6 @@ import argparse
 from typing import Optional
 from functools import partial
 
-#prithvi encoder for HLS transformation to embedded 1024D space
-class prithvi(nn.Module):
-
-    def __init__(self,prithvi_weight,prithvi_config,n_frame,input_size):
-
-        super(prithvi,self).__init__()
-
-        # load checkpoint for Prithvi_global
-        
-        self.weights_path =prithvi_weight
-        self.checkpoint = torch.load(self.weights_path)
-        config = prithvi_config
-
-        
-        self.prithvi_model=MaskedAutoencoderViT(input_size=input_size,
-                                 patch_size=config.MODEL.PATCH_SIZE,
-                                 in_chans=len(config.DATA.BANDS),
-                                 embed_dim=config.MODEL.EMBED_DIM,
-                                 depth=config.MODEL.DEPTH,
-                                 num_heads=config.MODEL.NUM_HEADS,
-                                 decoder_embed_dim=config.MODEL.DECODER_EMBED_DIM,
-                                 decoder_depth=config.MODEL.DECODER_DEPTH,
-                                 decoder_num_heads=config.MODEL.DECODER_NUM_HEADS,
-                                 mlp_ratio=config.MODEL.MLP_RATIO,
-                                 norm_layer=partial(nn.LayerNorm, eps=1e-6),
-                                 norm_pix_loss=config.MODEL.NORM_PIX_LOSS,
-                                 coords_encoding=config.MODEL.COORDS_ENCODING,
-                                 coords_drop_rate=config.MODEL.COORDS_DROP_RATE,
-                                 coords_scale_learn=config.MODEL.COORDS_SCALE_LEARN,
-                                 drop_channels_rate=config.MODEL.DROP_CHANNELS_RATE)
-
-        self.prithvi_model.eval() # to double check the prithvi weights being frozen
-        #print("checkpoint names:",self.checkpoint.keys())
-         
-        _ = self.prithvi_model.load_state_dict(self.checkpoint, strict=False)
-        
-    
-    def forward(self,x,temp,loc,mask):
-        latent,_,ids_restore =self.prithvi_model.forward_encoder(x,temp,loc,mask) 
-        #print("latent shape",latent.shape)
-        pred = self.prithvi_model.forward_decoder(latent, ids_restore, temp,loc)
-        #print("pred shape",pred.shape)
-        return latent,pred
 
 #simple decoder to reduce dimensionality of prithvi enc output and flatten to 64D
 class SimpleDecoder_comb_v2(nn.Module):

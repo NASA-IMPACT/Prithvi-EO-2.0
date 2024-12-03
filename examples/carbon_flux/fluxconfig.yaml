@@ -3,7 +3,15 @@ model:
   n_channel: 6
   n_class: 1
   embed_dim: 1024
-
+  patch_size:
+      - 1
+      - 16
+      - 16
+  num_heads: 16
+  mlp_ratio: 4
+  decoder_depth: 8
+  head_dropout: 0.2
+  
 device_name: "cuda"
 
 n_iteration: 50
@@ -66,8 +74,13 @@ data:
   merra_stds_for2021test: [9.040586,11.143439,10.063070,8.121612,0.172953,52.172274,47.056911,76.875468,9.553304,0.000010]
   gpp_means_for2021test: [3.787582]
   gpp_stds_for2021test: [3.862494]
-
-
+  bands:
+      - "B02"
+      - "B03"
+      - "B04"
+      - "B05"
+      - "B06"
+      - "B07"
   
 logging:
   checkpoint_dir: "/home/jalmeida/Datasets/carbon_flux/logs"

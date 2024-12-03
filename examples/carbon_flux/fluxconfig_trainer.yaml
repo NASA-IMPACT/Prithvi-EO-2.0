@@ -1,9 +1,16 @@
 model:
   name: "Base_Flux"
   n_channel: 6
-  n_class: 1
-  embed_dim: 1280
-
+  embed_dim: 1024
+  patch_size:
+      - 1
+      - 16
+      - 16
+  num_heads: 16
+  mlp_ratio: 4
+  decoder_depth: 8
+  head_dropout: 0.2
+  
 device_name: "cuda"
 
 n_iteration: 50
@@ -11,7 +18,7 @@ n_iteration: 50
 prithvi_model_new_weight: "/dccstor/jlsa931/carbon_flux/checkpoints/checkpoint.pt"
 
 training:
-  train_batch_size: 4
+  train_batch_size: 16
   shuffle: True
 
   optimizer:
