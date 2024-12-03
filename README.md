@@ -10,7 +10,7 @@
 [![Website](https://img.shields.io/badge/Project-Website-87CEEB)](https://huggingface.co/ibm-nasa-geospatial)
 [![paper](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)]()
 
-This repository contains code and examples based on the [TerraTorch](github.com/IBM/terratorch) library for fine-tuning [Prithvi-EO-2.0](https://huggingface.co/spaces/ibm-nasa-geospatial/Prithvi-EO-2.0-Demo), a more powerful version of the foundation model [Prithvi](https://huggingface.co/ibm-nasa-geospatial/Prithvi-100M) developed by IBM and NASA. Trained on 4.2M global time series samples on the JUWELS HPC system at the Jülich Supercomputing Centre (JSC) using NASA’s Harmonized Landsat and Sentinel data at 30m resolution, it offers significant improvements over its predecessor. 
+This repository contains code and examples based on the [TerraTorch](https://github.com/IBM/terratorch) library for fine-tuning [Prithvi-EO-2.0](https://huggingface.co/spaces/ibm-nasa-geospatial/Prithvi-EO-2.0-Demo), a more powerful version of the foundation model [Prithvi](https://huggingface.co/ibm-nasa-geospatial/Prithvi-100M) developed by IBM and NASA. Trained on 4.2M global time series samples on the JUWELS HPC system at the Jülich Supercomputing Centre (JSC) using NASA’s Harmonized Landsat and Sentinel data at 30m resolution, it offers significant improvements over its predecessor. 
 
 ## 📢 Latest Updates
 

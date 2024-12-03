@@ -47,14 +47,14 @@ data:
       - class_path: UnflattenTemporalFromChannels
         init_args:
           n_timesteps: 3
-    data_root: <dataset_path>
+    data_root: <dataset_path> # https://huggingface.co/datasets/ibm-nasa-geospatial/burn_intensity
 
 model:
   class_path: terratorch.tasks.SemanticSegmentationTask
   init_args:
     model_args:
       backbone_pretrained: True
-      backbone: <prithvi_model> #  choose your prithvi model
+      backbone: <prithvi_model> # prithvi_vit_100, prithvi_eo_v2_300, prithvi_eo_v2_300_tl, prithvi_eo_v2_600, prithvi_eo_v2_600_tl
       decoder: UperNetDecoder
       backbone_pretrained: True
       backbone_in_channels: 6
@@ -76,17 +76,17 @@ model:
       necks:
         - name: SelectIndices
           indices:
-            # indices for vit_100
+            # indices for prithvi_vit_100
             # - 2
             # - 5
             # - 8
             # - 11
-            # indices for vit_300
+            # indices for prithvi_eo_v2_300
             # - 5
             # - 11
             # - 17
             # - 23
-            # indices for vit_600
+            # indices for prithvi_eo_v2_600
             - 7
             - 15
             - 23

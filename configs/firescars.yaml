@@ -28,7 +28,7 @@ trainer:
 data:
   class_path: terratorch.datamodules.FireScarsNonGeoDataModule
   init_args:
-    data_root: <dataset_path>
+    data_root: <dataset_path> # https://huggingface.co/datasets/ibm-nasa-geospatial/hls_burn_scars
     batch_size: 16
     num_workers: 8
     no_data_replace: 0
@@ -68,7 +68,7 @@ model:
   init_args:
     model_args:
       backbone_pretrained: True
-      backbone: <prithvi_model> #  choose your prithvi model
+      backbone: <prithvi_model> # prithvi_vit_100, prithvi_eo_v2_300, prithvi_eo_v2_300_tl, prithvi_eo_v2_600, prithvi_eo_v2_600_tl
       decoder: UperNetDecoder
       decoder_channels: 256
       decoder_scale_modules: true
@@ -85,21 +85,21 @@ model:
       necks:
         - name: SelectIndices
           indices:
-            # indices for vit_100
-            - 2
-            - 5
-            - 8
-            - 11
-            # indices for vit_300
+            # indices for prithvi_vit_100
+            # - 2
+            # - 5
+            # - 8
+            # - 11
+            # indices for prithvi_eo_v2_300
             # - 5
             # - 11
             # - 17
             # - 23
-            # indices for vit_600
-            # - 7
-            # - 15
-            # - 23
-            # - 31
+            # indices for prithvi_eo_v2_600
+            - 7
+            - 15
+            - 23
+            - 31
         - name: ReshapeTokensToImage
     loss: ce
     ignore_index: -1
