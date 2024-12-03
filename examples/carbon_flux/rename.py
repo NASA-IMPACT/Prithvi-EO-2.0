@@ -1,7 +1,12 @@
 import os
 import glob
+from argparse import ArgumentParser
 
-path = "/home/jalmeida/Datasets/carbon_flux/train/images"
+parser = ArgumentParser()
+parser.add_argument("--path")
+args = parser.parse_args()
+
+path = args.path
 
 files = glob.glob(os.path.join(path, "*.tiff"))
 

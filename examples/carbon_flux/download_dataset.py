@@ -13,7 +13,7 @@ huggingface_hub.login(token=token)
 import datasets
 
 parser = ArgumentParser()
-parser.add_argument("save_dir")
+parser.add_argument("--save_dir")
 args = parser.parse_args()
 
 save_dir = args.save_dir
