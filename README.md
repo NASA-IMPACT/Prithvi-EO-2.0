@@ -35,15 +35,15 @@ We used the most popular and rigorous benchmark framework available for Earth Ob
 
 ## Fine-tuning
 
-We have fined-tuned Prithvi-EO-2.0 for downstream tasks in different domains of interest using [TerraTorch](github.com/IBM/terratorch). Below we provide a list of the downstream tasks, along with links to the datasets that are available in Hugging Face, sample TerraTorch configuration files (or custom code, in the case of Gross Primary Product) and sample notebooks for fine-tuning.
+We have fined-tuned Prithvi-EO-2.0 for downstream tasks in different domains of interest using [TerraTorch](github.com/IBM/terratorch). Below we provide a list of the downstream tasks, along with links to the datasets, sample TerraTorch configuration files (or custom code, in the case of Gross Primary Product) and sample notebooks for fine-tuning.
 
 | Task | Dataset | TerraTorch Config/Code | Sample Notebook| 
 | ------------- | ------------- | ------------- |------------- |
 |Flood Detection|[https://github.com/cloudtostreet/Sen1Floods11](https://github.com/cloudtostreet/Sen1Floods11)| | |
 |Wildfire Scar Detection| [https://huggingface.co/datasets/ibm-nasa-geospatial/hls_burn_scars](https://huggingface.co/datasets/ibm-nasa-geospatial/hls_burn_scars)| | |
-|Burn Scar Intensity| [https://huggingface.co/datasets/ibm-nasa-geospatial/burn_intensity](https://huggingface.co/datasets/ibm-nasa-geospatial/burn_intensity)| | |
-|Landslide Detection|[https://huggingface.co/datasets/ibm-nasa-geospatial/Landslide4sense](https://huggingface.co/datasets/ibm-nasa-geospatial/Landslide4sense) | [test_landslide.yaml](https://github.com/NASA-IMPACT/Prithvi-EO-2.0/blob/main/test_landslide.yaml)| |
+|Burn Scar Intensity| [https://huggingface.co/datasets/ibm-nasa-geospatial/burn_intensity](https://huggingface.co/datasets/ibm-nasa-geospatial/burn_intensity)|[test_burnintensity.yaml](https://github.com/NASA-IMPACT/Prithvi-EO-2.0/blob/main/test_burnintensity.yaml)| |
+|Landslide Detection|[https://huggingface.co/datasets/ibm-nasa-geospatial/Landslide4sense](https://huggingface.co/datasets/ibm-nasa-geospatial/Landslide4sense) | [test_landslide.yaml](https://github.com/NASA-IMPACT/Prithvi-EO-2.0/blob/main/test_landslide.yaml)|[example_landslide4sense.ipynb](https://github.com/NASA-IMPACT/Prithvi-EO-2.0/blob/main/examples/example_landslide4sense.ipynb) |
 |Multi-temporal Crop Segmentation (US)| [https://huggingface.co/datasets/ibm-nasa-geospatial/multi-temporal-crop-classification](https://huggingface.co/datasets/ibm-nasa-geospatial/multi-temporal-crop-classification)| | |
 |Multi-temporal Land Cover and Crop Classification (Europe)|[https://datapub.fz-juelich.de/sen4map/](https://datapub.fz-juelich.de/sen4map/) | | |
-|Above Ground Biomass Estimation| [https://huggingface.co/datasets/ibm-nasa-geospatial/BioMassters](https://huggingface.co/datasets/ibm-nasa-geospatial/BioMassters)| | |
+|Above Ground Biomass Estimation| [https://huggingface.co/datasets/ibm-nasa-geospatial/BioMassters](https://huggingface.co/datasets/ibm-nasa-geospatial/BioMassters)|[test_biomassters.yaml](https://github.com/NASA-IMPACT/Prithvi-EO-2.0/blob/main/test_biomassters.yaml) | |
 |Gross Primary Productivity Estimation|[https://huggingface.co/datasets/ibm-nasa-geospatial/hls_merra2_gppFlux](https://huggingface.co/datasets/ibm-nasa-geospatial/hls_merra2_gppFlux)| | |
