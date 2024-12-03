@@ -5,8 +5,8 @@ import os
 import numpy as np
 import rasterio
 import yaml
-from Prithvi_global_v1.mae.models_mae import MaskedAutoencoderViT
-from Prithvi_global_v1.mae.config_H import get_config
+from aux.mae.models_mae import MaskedAutoencoderViT
+from aux.mae.config_H import get_config
 import pickle
 #from Prithvi_global_v1.mae.config import get_config
 import argparse
