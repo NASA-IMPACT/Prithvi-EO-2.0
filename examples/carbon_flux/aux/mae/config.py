@@ -3,7 +3,7 @@ from typing import Optional
 
 from yacs.config import CfgNode as CN
 
-from Prithvi_global_v1.utils.config import check_args, update_common_args
+from aux.utils.config import check_args, update_common_args
 
 
 _C = CN()
