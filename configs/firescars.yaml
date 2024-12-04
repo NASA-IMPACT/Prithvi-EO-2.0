@@ -1,0 +1,119 @@
+seed_everything: 0
+trainer:
+  accelerator: auto
+  strategy: auto
+  devices: auto
+  num_nodes: 1
+  precision: 16-mixed
+  logger:
+    class_path: TensorBoardLogger
+    init_args:
+      save_dir: <your_dir>
+      name: trainer_name
+  callbacks:
+    - class_path: RichProgressBar
+    - class_path: LearningRateMonitor
+      init_args:
+        logging_interval: epoch
+    - class_path: lightning.pytorch.callbacks.EarlyStopping
+      init_args:
+        patience: 20
+        monitor: val/loss
+  max_epochs: 50
+  check_val_every_n_epoch: 2
+  log_every_n_steps: 10
+  enable_checkpointing: True
+  default_root_dir: <your_dir>
+
+data:
+  class_path: terratorch.datamodules.FireScarsNonGeoDataModule
+  init_args:
+    data_root: <dataset_path> # https://huggingface.co/datasets/ibm-nasa-geospatial/hls_burn_scars
+    batch_size: 16
+    num_workers: 8
+    no_data_replace: 0
+    no_label_replace: -1
+    use_metadata: False
+    train_transform:
+      - class_path: albumentations.Resize
+        init_args:
+          height: 448
+          width: 448
+      - class_path: albumentations.RandomCrop
+        init_args:
+          height: 224
+          width: 224
+      - class_path: albumentations.HorizontalFlip
+        init_args:
+          p: 0.5
+      - class_path: albumentations.VerticalFlip
+        init_args:
+          p: 0.5
+      - class_path: ToTensorV2
+    val_transform:
+      - class_path: albumentations.Resize
+        init_args:
+          height: 448
+          width: 448
+      - class_path: ToTensorV2
+    test_transform:
+      - class_path: albumentations.Resize
+        init_args:
+          height: 448
+          width: 448
+      - class_path: ToTensorV2
+        
+model:
+  class_path: terratorch.tasks.SemanticSegmentationTask
+  init_args:
+    model_args:
+      backbone_pretrained: True
+      backbone: <prithvi_model> # prithvi_vit_100, prithvi_eo_v2_300, prithvi_eo_v2_300_tl, prithvi_eo_v2_600, prithvi_eo_v2_600_tl
+      decoder: UperNetDecoder
+      decoder_channels: 256
+      decoder_scale_modules: true
+      num_classes: 2
+      rescale: True
+      backbone_bands:
+        - BLUE
+        - GREEN
+        - RED
+        - NIR_BROAD
+        - SWIR_1
+        - SWIR_2
+      head_dropout: 0.1
+      necks:
+        - name: SelectIndices
+          indices:
+            # indices for prithvi_vit_100
+            # - 2
+            # - 5
+            # - 8
+            # - 11
+            # indices for prithvi_eo_v2_300
+            # - 5
+            # - 11
+            # - 17
+            # - 23
+            # indices for prithvi_eo_v2_600
+            - 7
+            - 15
+            - 23
+            - 31
+        - name: ReshapeTokensToImage
+    loss: ce
+    ignore_index: -1
+    freeze_backbone: false
+    freeze_decoder: false
+    model_factory: EncoderDecoderFactory
+
+optimizer:
+  class_path: torch.optim.AdamW
+  init_args:
+    lr: 5.0e-5
+    weight_decay: 0.05
+
+lr_scheduler:
+  class_path: CosineAnnealingLR
+  init_args:
+    T_max: 50

@@ -1,0 +1,130 @@
+seed_everything: 0
+trainer:
+  accelerator: auto
+  strategy: auto
+  devices: auto
+  num_nodes: 1
+  precision: 16-mixed
+  logger:
+    class_path: TensorBoardLogger
+    init_args:
+      save_dir: <your_dir>
+      name: trainer_name
+  callbacks:
+    - class_path: RichProgressBar
+    - class_path: LearningRateMonitor
+      init_args:
+        logging_interval: epoch
+  max_epochs: 50
+  check_val_every_n_epoch: 2
+  log_every_n_steps: 50
+  enable_checkpointing: True
+  default_root_dir: <your_dir>
+
+data:
+  class_path: BurnIntensityNonGeoDataModule
+  init_args:
+    batch_size: 8
+    num_workers: 12
+    use_metadata: True
+    use_full_data: true
+    train_transform:
+      - class_path: FlattenTemporalIntoChannels
+      - class_path: albumentations.Flip
+      - class_path: ToTensorV2
+      - class_path: UnflattenTemporalFromChannels
+        init_args:
+          n_timesteps: 3
+    val_transform:
+      - class_path: FlattenTemporalIntoChannels
+      - class_path: ToTensorV2
+      - class_path: UnflattenTemporalFromChannels
+        init_args:
+          n_timesteps: 3
+    test_transform:
+      - class_path: FlattenTemporalIntoChannels
+      - class_path: ToTensorV2
+      - class_path: UnflattenTemporalFromChannels
+        init_args:
+          n_timesteps: 3
+    data_root: <dataset_path> # https://huggingface.co/datasets/ibm-nasa-geospatial/burn_intensity
+
+model:
+  class_path: terratorch.tasks.SemanticSegmentationTask
+  init_args:
+    model_args:
+      backbone_pretrained: True
+      backbone: <prithvi_model> # prithvi_vit_100, prithvi_eo_v2_300, prithvi_eo_v2_300_tl, prithvi_eo_v2_600, prithvi_eo_v2_600_tl
+      decoder: UperNetDecoder
+      backbone_pretrained: True
+      backbone_in_channels: 6
+      num_classes: 5
+      rescale: true
+      backbone_bands:
+        - BLUE
+        - GREEN
+        - RED
+        - NIR
+        - SWIR_1
+        - SWIR_2
+      backbone_num_frames: 3
+      head_dropout: 0.1
+      decoder_channels: 512
+      head_channel_list:
+        - 128
+        - 64
+      necks:
+        - name: SelectIndices
+          indices:
+            # indices for prithvi_vit_100
+            # - 2
+            # - 5
+            # - 8
+            # - 11
+            # indices for prithvi_eo_v2_300
+            # - 5
+            # - 11
+            # - 17
+            # - 23
+            # indices for prithvi_eo_v2_600
+            - 7
+            - 15
+            - 23
+            - 31
+        - name: ReshapeTokensToImage
+          effective_time_dim: 3
+    loss: ce
+    class_names:
+      - No burn
+      - Unburned to Very Low
+      - Low Severity
+      - Moderate Severity
+      - High Severity
+    class_weights:
+      - 0.018
+      - 0.14
+      - 0.076
+      - 0.11
+      - 0.65
+    ignore_index: -1
+    freeze_backbone: false
+    freeze_decoder: false
+    model_factory: EncoderDecoderFactory
+    tiled_inference_parameters:
+      h_crop: 224
+      h_stride: 196
+      w_crop: 224
+      w_stride: 196
+      average_patches: true
+
+optimizer:
+  class_path: torch.optim.AdamW
+  init_args:
+    lr: 1.0e-5
+    weight_decay: 0.1
+
+lr_scheduler:
+  class_path: StepLR
+  init_args:
+    step_size: 3
+    gamma: 0.9
