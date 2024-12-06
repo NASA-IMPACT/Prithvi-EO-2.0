@@ -12,7 +12,6 @@ model:
   head_dropout: 0.2
 device_name: "cuda"
 n_iteration: 50
-prithvi_model_new_weight: "/dccstor/jlsa931/carbon_flux/checkpoints/checkpoint.pt"
 training:
   train_batch_size: 16
   shuffle: True
