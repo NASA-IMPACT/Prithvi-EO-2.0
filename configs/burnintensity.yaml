@@ -58,6 +58,8 @@ model:
       decoder: UperNetDecoder
       backbone_pretrained: True
       backbone_in_channels: 6
+      backbone_coords_encoding:
+        - "location"
       num_classes: 5
       rescale: true
       backbone_bands:

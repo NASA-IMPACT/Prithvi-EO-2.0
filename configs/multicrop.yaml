@@ -32,7 +32,7 @@ data:
     num_workers: 12
     reduce_zero_label: True
     expand_temporal_dimension: True
-    use_metadata: false
+    use_metadata: True
     bands:
       - BLUE
       - GREEN
@@ -66,6 +66,9 @@ model:
       decoder: UperNetDecoder
       num_classes: 13
       backbone_pretrained: True
+      backbone_coords_encoding:
+        - "time"
+        - "location"
       rescale: True
       backbone_bands:
         - BLUE

@@ -33,7 +33,7 @@ data:
     num_workers: 8
     no_data_replace: 0
     no_label_replace: -1
-    use_metadata: False
+    use_metadata: true
     train_transform:
       - class_path: albumentations.Resize
         init_args:
@@ -72,6 +72,9 @@ model:
       decoder: UperNetDecoder
       decoder_channels: 256
       decoder_scale_modules: true
+      backbone_coords_encoding:
+        - "time"
+        - "location"
       num_classes: 2
       rescale: True
       backbone_bands:
