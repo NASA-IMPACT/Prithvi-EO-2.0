@@ -162,4 +162,6 @@ cython_debug/
 #.idea/
 #
 
-examples/**/ legacy/*
+examples/carbon_flux/legacy/*
+examples/carbon_flux/tutorial_experiments/*
+examples/carbon_flux/*pt
