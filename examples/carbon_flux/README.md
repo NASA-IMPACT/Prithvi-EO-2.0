@@ -11,6 +11,11 @@ However both prithvi output and MERRA-2 data are projected in same embedding spa
 
 This example will require a specific version of TerraTorch (the candidate for the next release) for now, so install it as:
 ```bash
+   pip install terratorch==0.99.8rc1 
+```
+
+Or through the GitHub repository:
+```bash
     pip install git+https://github.com/IBM/terratorch@0.99.8.rc1
 ```
 
