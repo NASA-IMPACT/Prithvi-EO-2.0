@@ -158,7 +158,8 @@ stack-data==0.6.3
 sympy==1.13.1
 tensorboardX==2.6.2.2
 terratorch
-threadpoolctl==3.5.0tifffile==2024.9.20
+threadpoolctl==3.5.0
+tifffile==2024.9.20
 timm==0.9.7
 tokenizers==0.20.3
 toolz==1.0.0
