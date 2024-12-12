@@ -45,7 +45,7 @@ geopandas==1.0.1
 gitdb==4.0.11
 GitPython==3.1.43
 google-auth==2.36.0
-granitewxc @ git+https://github.com/IBM/granite-wxc.git@1d180f6d730e26fcd605925f6514f7974122f973
+granitewxc
 graphene==3.4.3
 graphql-core==3.2.5
 graphql-relay==3.2.0
@@ -116,7 +116,7 @@ peft==0.12.0
 pexpect==4.9.0
 pillow==11.0.0
 pretrainedmodels==0.7.4
-PrithviWxC @ git+https://github.com/NASA-IMPACT/Prithvi-WxC.git@ecfd69b2e94b6505d3accbdecf095b92fd18411e
+PrithviWxC
 prompt_toolkit==3.0.48
 propcache==0.2.0
 protobuf==5.28.3
@@ -157,7 +157,7 @@ sqlparse==0.5.1
 stack-data==0.6.3
 sympy==1.13.1
 tensorboardX==2.6.2.2
--e git+ssh://git@github.com/IBM/terratorch.git@ca289f0663a84952247213958cf3727a07359a87#egg=terratorch
+terratorch
 threadpoolctl==3.5.0
 tifffile==2024.9.20
 timm==0.9.7
