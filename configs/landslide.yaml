@@ -42,19 +42,19 @@ data:
       - SWIR_2
     train_transform:
       - class_path: albumentations.Flip
-      - class_path: albumentations.RandomResizedCrop
+      - class_path: albumentations.Resize
         init_args:
           height: 224
           width: 224
       - class_path: ToTensorV2
     val_transform:
-      - class_path: albumentations.RandomResizedCrop
+      - class_path: albumentations.Resize
         init_args:
           height: 224
           width: 224
       - class_path: ToTensorV2
     test_transform:
-      - class_path: albumentations.RandomResizedCrop
+      - class_path: albumentations.Resize
         init_args:
           height: 224
           width: 224

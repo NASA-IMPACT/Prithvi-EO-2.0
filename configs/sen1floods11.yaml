@@ -45,10 +45,6 @@ data:
     train_transform:
       - class_path: albumentations.Resize
         init_args:
-          height: 448
-          width: 448
-      - class_path: albumentations.RandomCrop
-        init_args:
           height: 224
           width: 224
       - class_path: albumentations.HorizontalFlip
@@ -61,14 +57,14 @@ data:
     val_transform:
       - class_path: albumentations.Resize
         init_args:
-          height: 448
-          width: 448
+          height: 224
+          width: 224
       - class_path: ToTensorV2
     test_transform:
       - class_path: albumentations.Resize
         init_args:
-          height: 448
-          width: 448
+          height: 224
+          width: 224
       - class_path: ToTensorV2
         
 model:

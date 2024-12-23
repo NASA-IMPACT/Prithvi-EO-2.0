@@ -39,7 +39,7 @@ data:
       - SWIR_2
     train_transform:
       - class_path: FlattenTemporalIntoChannels
-      - class_path: albumentations.RandomCrop
+      - class_path: albumentations.Resize
         init_args:
           height: 224
           width: 224
@@ -50,7 +50,7 @@ data:
           n_timesteps: 4
     val_transform:
       - class_path: FlattenTemporalIntoChannels
-      - class_path: albumentations.RandomCrop
+      - class_path: albumentations.Resize
         init_args:
           height: 224
           width: 224
